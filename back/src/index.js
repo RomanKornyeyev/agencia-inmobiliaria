@@ -1,18 +1,11 @@
-const express = require('express');
-const cors = require("cors");
-const realState = require('./routes/real-state');
-const app = express();
-const port = 3000;
+// src/index.js
+const dotenv = require('dotenv');
+dotenv.config(); // Cargar variables de entorno
 
-app.use(cors());
+const app = require('./app'); // Importar la configuración de Express
 
-app.get('/', (req, res) => {
-    res.send('Bienvenido a mobilix donde hay pisos caros');
-}
-);
+const PORT = process.env.PORT || 3000;
 
-app.use('/real-state', realState);
-
-app.listen(port, () => {
-    console.log(`Escuchando manito, por el puerto http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`);
 });

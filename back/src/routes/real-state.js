@@ -1,94 +1,77 @@
 const express = require('express');
+const db = require('../config/db'); // Importar conexión a la BBDD
 
 const router = express.Router();
 
-const realEstateExamples = [
-    {
-        id: 1,
-        title: 'Beautiful Family House',
-        description: 'A beautiful family house with a large garden.',
-        price: 500000,
-        location: '123 Main St, Springfield, USA'
-    },
-    {
-        id: 2,
-        title: 'Modern Apartment',
-        description: 'A modern apartment in the city center.',
-        price: 300000,
-        location: '456 Elm St, Metropolis, USA'
-    },
-    {
-        id: 3,
-        title: 'Cozy Cottage',
-        description: 'A cozy cottage in the countryside.',
-        price: 200000,
-        location: '789 Oak St, Smalltown, USA'
-    }
-];
-
+// 📌 Obtener todos los registros
 router.get('/', (req, res) => {
-    res.json(realEstateExamples);
+    db.query('SELECT * FROM real_states', (err, results) => {
+        if (err) {
+            console.error('Error fetching data:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+        res.json(results);
+    });
 });
 
-router.post('/', (req, res) => {
-    const newRealEstate = req.body;
-    newRealEstate.id = realEstateExamples.length + 1;
-    realEstateExamples.push(newRealEstate);
-    res.status(201).json(newRealEstate);
-});
-
+// 📌 Obtener un registro por ID
 router.get('/:id', (req, res) => {
-    const realEstate = realEstateExamples.find(item => item.id === parseInt(req.params.id));
-    if (realEstate) {
-        res.json(realEstate);
-    } else {
-        res.status(404).send('Real estate listing not found');
-    }
+    const { id } = req.params;
+    db.query('SELECT * FROM real_states WHERE id = ?', [id], (err, results) => {
+        if (err) {
+            console.error('Error fetching data:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Listing not found' });
+        }
+        res.json(results[0]);
+    });
 });
 
-router.put('/:id', (req, res) => {
-    const realEstate = realEstateExamples.find(item => item.id === parseInt(req.params.id));
-    if (realEstate) {
-        Object.assign(realEstate, req.body);
-        res.json(realEstate);
-    } else {
-        res.status(404).send('Real estate listing not found');
-    }
-});
-
-router.delete('/:id', (req, res) => {
-    const index = realEstateExamples.findIndex(item => item.id === parseInt(req.params.id));
-    if (index !== -1) {
-        realEstateExamples.splice(index, 1);
-        res.status(204).send();
-    } else {
-        res.status(404).send('Real estate listing not found');
-    }
-});
-
-router.get('/examples', (req, res) => {
-    res.json(realEstateExamples);
-});
-
-// Define your routes here
-router.get('/', (req, res) => {
-    res.send('Get all real estate listings');
-});
-
+// 📌 Crear un nuevo registro
 router.post('/', (req, res) => {
-    res.send('Create a new real estate listing');
+    const { title, description, price, location } = req.body;
+    db.query(
+        'INSERT INTO real_states (title, description, price, location) VALUES (?, ?, ?, ?)',
+        [title, description, price, location],
+        (err, results) => {
+            if (err) {
+                console.error('Error inserting data:', err.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+            res.status(201).json({ id: results.insertId, title, description, price, location });
+        }
+    );
 });
 
-router.get('/:id', (req, res) => {
-    res.send(`Get real estate listing with ID ${req.params.id}`);
-});
-
+// 📌 Actualizar un registro por ID
 router.put('/:id', (req, res) => {
-    res.send(`Update real estate listing with ID ${req.params.id}`);
+    const { id } = req.params;
+    const { title, description, price, location } = req.body;
+    db.query(
+        'UPDATE real_states SET title = ?, description = ?, price = ?, location = ? WHERE id = ?',
+        [title, description, price, location, id],
+        (err) => {
+            if (err) {
+                console.error('Error updating data:', err.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+            res.json({ message: 'Listing updated successfully' });
+        }
+    );
 });
 
+// 📌 Eliminar un registro por ID
 router.delete('/:id', (req, res) => {
-    res.send(`Delete real estate listing with ID ${req.params.id}`);
+    const { id } = req.params;
+    db.query('DELETE FROM real_states WHERE id = ?', [id], (err) => {
+        if (err) {
+            console.error('Error deleting data:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+        res.json({ message: 'Listing deleted successfully' });
+    });
 });
 
 module.exports = router;

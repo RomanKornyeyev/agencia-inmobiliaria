@@ -3,7 +3,7 @@ import RealStateList from "./components/RealStateList";
 
 function App() {
   return (
-    <div>
+    <div class="container">
       <RealStateList />
     </div>
   );

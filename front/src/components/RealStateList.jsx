@@ -27,15 +27,15 @@ const RealStateList = () => {
 
   return (
     <div>
-      <h1>Listado de Casas</h1>
-      <ul>
+      <h1 class="mb-3">Listado de Casas</h1>
+      <ul class="list-group">
         {houses.map((house) => (
-          <li key={house.id}>
-            {house.name} - {house.location}
-          </li>
-        ))}
+            <a key={house.id} class="list-group-item" href="#">
+              {house.name} - {house.location}
+            </a>
+          ))}
       </ul>
-    </div>
+    </div>     
   );
 };
 

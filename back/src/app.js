@@ -21,7 +21,7 @@ db.connect((err) => {
 
 // Rutas
 app.get('/', (req, res) => {
-    res.send('Bienvenido a Mobilix, donde hay pisos caros 🏠');
+    res.send('Bienvenido a Inmobilix, donde hay pisos caros 🏠');
 });
 
 app.use('/real-state', realState);

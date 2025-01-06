@@ -2,28 +2,30 @@
 const express = require('express');
 const cors = require('cors');
 const realState = require('./routes/real-state');
-const db = require('./config/db'); // Conexión a la BBDD
+const auth = require('./routes/auth');
+const users = require('./routes/users');
+const db = require('./config/db');
 
 const app = express();
 
-// Middlewares
 app.use(cors());
-app.use(express.json()); // Para recibir JSON en el body
+app.use(express.json());
 
-// Conectar la base de datos
 db.connect((err) => {
     if (err) {
         console.error('❌ Error al conectar a la base de datos:', err.stack);
         return;
     }
-    console.log('✅ Conexión a la base de datos exitosa con ID ' + db.threadId);
+    console.log('✅ Conexión a la base de datos exitosa');
 });
 
 // Rutas
 app.get('/', (req, res) => {
-    res.send('Bienvenido a Inmobilix, donde hay pisos caros 🏠');
+    res.send('Bienvenido a Inmobilix 🏠');
 });
 
 app.use('/real-state', realState);
+app.use('/auth', auth);
+app.use('/users', users);
 
 module.exports = app;
